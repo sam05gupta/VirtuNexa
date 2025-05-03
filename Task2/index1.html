@@ -1,0 +1,139 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Photo Organizer with Tags</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1 class="logo" tabindex="0">
+        <i class="fas fa-camera-retro" aria-hidden="true"></i> Photo Organizer
+      </h1>
+      <nav aria-label="Primary" class="primary-nav">
+        <a href="#upload" tabindex="0">Upload</a>
+        <a href="#gallery" tabindex="0">Gallery</a>
+        <a href="#filter" tabindex="0">Filter</a>
+      </nav>
+      <button
+        id="mobileMenuButton"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobileMenu"
+      >
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+    </div>
+    <nav id="mobileMenu" aria-label="Mobile Primary">
+      <a href="#upload" tabindex="0">Upload</a>
+      <a href="#gallery" tabindex="0">Gallery</a>
+      <a href="#filter" tabindex="0">Filter</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Upload Section -->
+    <section id="upload" aria-labelledby="uploadTitle" tabindex="-1">
+      <h2 id="uploadTitle" class="section-title">
+        <i class="fas fa-upload" aria-hidden="true"></i> Upload Photos
+      </h2>
+      <form id="uploadForm" novalidate>
+        <div>
+          <label for="photoInput">
+            Select Photos <span>(JPEG, PNG, GIF)</span>
+          </label>
+          <input
+            type="file"
+            id="photoInput"
+            name="photos"
+            accept="image/jpeg,image/png,image/gif"
+            multiple
+            required
+            aria-describedby="photoInputHelp"
+          />
+          <p id="photoInputHelp" class="help-text">
+            You can select multiple photos at once.
+          </p>
+          <p id="photoInputError" class="error-text" role="alert"></p>
+        </div>
+
+        <div>
+          <label for="tagsInput">
+            Add Tags <span>(Separate tags with commas)</span>
+          </label>
+          <input
+            type="text"
+            id="tagsInput"
+            name="tags"
+            placeholder="e.g. vacation, family, beach"
+            aria-describedby="tagsInputHelp"
+            autocomplete="off"
+          />
+          <p id="tagsInputHelp" class="help-text">
+            Tags help you organize and filter your photos.
+          </p>
+          <p id="tagsInputError" class="error-text" role="alert"></p>
+        </div>
+
+        <button type="submit" aria-label="Upload Photos">
+          <i class="fas fa-plus-circle" aria-hidden="true"></i> Upload Photos
+        </button>
+      </form>
+    </section>
+
+    <!-- Filter Section -->
+    <section id="filter" aria-labelledby="filterTitle" tabindex="-1">
+      <h2 id="filterTitle" class="section-title">
+        <i class="fas fa-filter" aria-hidden="true"></i> Filter Photos by Tags
+      </h2>
+      <div class="filter-container">
+        <label for="filterTagsInput">Select Tags to Filter</label>
+        <div
+          id="tagsContainer"
+          aria-live="polite"
+          aria-atomic="true"
+          aria-relevant="additions removals"
+          tabindex="0"
+        >
+          <!-- Dynamic tags buttons inserted here -->
+        </div>
+        <button
+          id="clearFilterBtn"
+          type="button"
+          aria-label="Clear all filters"
+          disabled
+        >
+          <i class="fas fa-times-circle" aria-hidden="true"></i> Clear Filters
+        </button>
+      </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" aria-labelledby="galleryTitle" tabindex="-1">
+      <h2 id="galleryTitle" class="section-title">
+        <i class="fas fa-images" aria-hidden="true"></i> Photo Gallery
+      </h2>
+      <p id="galleryEmptyMsg" class="visible" aria-live="polite" aria-atomic="true">
+        No photos uploaded yet. Use the upload section above to add photos.
+      </p>
+      <ul
+        id="photoGallery"
+        aria-live="polite"
+        aria-atomic="true"
+        tabindex="0"
+      >
+        <!-- Dynamic photo items inserted here -->
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" aria-label="Footer">
+      &copy; 2024 Photo Organizer. All rights reserved.
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
