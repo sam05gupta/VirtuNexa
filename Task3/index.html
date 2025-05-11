@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Donation Tracker Platform</title>
+<style>
+  /* Reset and base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1 {
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: 1.8rem;
+    user-select: none;
+  }
+  h2 {
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 4px;
+    color: #444;
+  }
+  main {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    max-width: 360px;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  form {
+    padding: 16px 20px 4px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #f5f7ff;
+    border-bottom: 2px solid #667eea;
+  }
+  label {
+    flex: 1 1 100%;
+    font-size: 0.9rem;
+    color: #555;
+    user-select:none;
+  }
+  input, select {
+    padding: 8px 12px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    transition: border-color 0.25s ease;
+    width: 100%;
+  }
+  input:focus, select:focus {
+    border-color: #667eea;
+    outline: none;
+  }
+  .row {
+    flex: 1 1 calc(33.333% - 8px);
+  }
+  .row.amount {
+    flex: 1 1 calc(33.333% - 8px);
+  }
+  .error-message {
+    color: #d93025;
+    font-size: 0.85rem;
+    margin-top: 2px;
+    height: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .error-message.visible {
+    opacity: 1;
+  }
+  button[type="submit"] {
+    flex: 1 1 100%;
+    margin-top: 8px;
+    background-color: #667eea;
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(102,126,234,.8);
+    transition: background-color 0.3s ease;
+  }
+  button[type="submit"]:hover, button[type="submit"]:focus {
+    background-color: #5a6dde;
+  }
+
+  section.dashboard {
+    padding: 18px 24px 12px 24px;
+  }
+
+  .stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .stats div {
+    background: #e9ebff;
+    padding: 12px 16px;
+    border-radius: 12px;
+    flex: 1 1 auto;
+    margin: 0 6px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    text-align: center;
+    user-select:none;
+  }
+  .stats div:first-child {
+    margin-left: 0;
+  }
+  .stats div:last-child {
+    margin-right: 0;
+  }
+  .stats .label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 4px;
+  }
+  .stats .value {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: #2c2c2c;
+  }
+
+  .goals {
+    margin-top: 8px;
+  }
+  .goal {
+    margin-bottom: 14px;
+  }
+  .goal-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+    color: #444;
+    user-select:none;
+  }
+  .progress-bar {
+    position: relative;
+    height: 16px;
+    background: #ddd;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .progress-bar-inner {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.5s ease;
+  }
+  .progress-text {
+    font-size: 0.8rem;
+    margin-top: 3px;
+    font-weight: 600;
+    color: #444;
+    user-select:none;
+  }
+
+  .donation-history {
+    max-height: 210px;
+    overflow-y: auto;
+    margin-top: 12px;
+    border-top: 2px solid #667eea;
+    padding-top: 12px;
+  }
+  .donation-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding: 8px 4px;
+    font-size: 0.9rem;
+    color: #222;
+    background: #fefefe;
+    border-radius: 6px;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: slideInFade 0.4s forwards;
+  }
+  .donation-item span {
+    flex: 1 1 auto;
+    user-select:none;
+  }
+  .donation-item .org {
+    font-weight: 600;
+    color: #4a3fbf;
+  }
+  .donation-item .amount {
+    text-align: right;
+    font-weight: 700;
+    color: #3751a3;
+  }
+  .donation-item .date {
+    text-align: right;
+    color: #7a7a7a;
+  }
+  
+  @keyframes slideInFade {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Scrollbar small and subtle */
+  .donation-history::-webkit-scrollbar {
+    width: 6px;
+  }
+  .donation-history::-webkit-scrollbar-thumb {
+    background-color: #667eea99;
+    border-radius: 4px;
+  }
+  .donation-history::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Responsive for mobile */
+  @media screen and (max-width: 400px) {
+    main {
+      max-width: 100vw;
+      border-radius: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding-bottom: 10px;
+    }
+    form {
+      padding: 14px 16px 2px 16px;
+    }
+    button[type="submit"] {
+      font-size: 1.05rem;
+      padding: 12px 0;
+    }
+  }
+</style>
+</head>
+<body>
+<h1>Donation Tracker Platform</h1>
+<main role="main" aria-label="Donation Tracking Dashboard">
+  <form id="donation-form" novalidate aria-describedby="form-errors">
+    <label for="currency">Currency</label>
+    <select id="currency" name="currency" aria-label="Choose currency for donation" aria-required="true">
+      <option value="INR" selected>₹ Indian Rupee (INR)</option>
+      <option value="USD">$ US Dollar (USD)</option>
+    </select>
+
+    <label for="organization">Organization</label>
+    <input type="text" id="organization" name="organization" placeholder="Organization name" autocomplete="off" required aria-required="true" aria-describedby="organization-error" />
+    <div id="organization-error" class="error-message" aria-live="polite"></div>
+
+    <label for="amount">Amount</label>
+    <input type="number" id="amount" name="amount" min="0.01" step="0.01" placeholder="0.00" required aria-required="true" aria-describedby="amount-error" />
+    <div id="amount-error" class="error-message" aria-live="polite"></div>
+
+    <label for="date">Date</label>
+    <input type="date" id="date" name="date" required aria-required="true" aria-describedby="date-error" />
+    <div id="date-error" class="error-message" aria-live="polite"></div>
+
+    <button type="submit" aria-label="Add new donation">Add Donation</button>
+  </form>
+  <section class="dashboard" aria-label="User donation summary and history">
+    <div class="stats" aria-live="polite" aria-atomic="true">
+      <div>
+        <div class="label">Total Donated</div>
+        <div class="value" id="total-donated">₹0.00</div>
+      </div>
+      <div>
+        <div class="label">Donations Made</div>
+        <div class="value" id="donation-count">0</div>
+      </div>
+    </div>
+    <section class="goals" aria-label="Donation goals">
+      <div class="goal" id="goal-container" hidden>
+        <div class="goal-label" id="goal-label"></div>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-bar-inner" id="goal-progress-bar" style="width:0%"></div>
+        </div>
+        <div class="progress-text" id="goal-text"></div>
+      </div>
+    </section>
+    <section class="donation-history" aria-live="polite" aria-atomic="false" aria-relevant="additions" role="list" id="donation-list" tabindex="0">
+    </section>
+  </section>
+</main>
+
+<script>
+  (() => {
+    const form = document.getElementById('donation-form');
+    const orgInput = document.getElementById('organization');
+    const amountInput = document.getElementById('amount');
+    const dateInput = document.getElementById('date');
+    const currencySelector = document.getElementById('currency');
+    const organizationError = document.getElementById('organization-error');
+    const amountError = document.getElementById('amount-error');
+    const dateError = document.getElementById('date-error');
+    const donationList = document.getElementById('donation-list');
+    const totalDonatedEl = document.getElementById('total-donated');
+    const donationCountEl = document.getElementById('donation-count');
+
+    const goalContainer = document.getElementById('goal-container');
+    const goalLabel = document.getElementById('goal-label');
+    const goalProgressBar = document.getElementById('goal-progress-bar');
+    const goalText = document.getElementById('goal-text');
+
+    // Donation goals by currency
+    const donationGoals = {
+      'INR': 75000,  // e.g. ₹75,000 goal
+      'USD': 1000    // $1000 goal
+    };
+
+    let donations = [];
+
+    function toCurrency(amount, currency) {
+      let opts = { style: 'currency', currency, minimumFractionDigits: 2 };
+      return amount.toLocaleString(undefined, opts);
+    }
+
+    // Validate input fields, return bool and show errors if any
+    function validateInputs() {
+      let valid = true;
+
+      // Organization name not empty
+      if (!orgInput.value.trim()) {
+        organizationError.textContent = "Enter an organization name";
+        organizationError.classList.add('visible');
+        valid = false;
+      } else {
+        organizationError.textContent = "";
+        organizationError.classList.remove('visible');
+      }
+
+      // Amount positive and > 0
+      const amountVal = parseFloat(amountInput.value);
+      if (isNaN(amountVal) || amountVal <= 0) {
+        amountError.textContent = "Enter a valid positive amount";
+        amountError.classList.add('visible');
+        valid = false;
+      } else {
+        amountError.textContent = "";
+        amountError.classList.remove('visible');
+      }
+
+      // Date valid and not future
+      if (!dateInput.value) {
+        dateError.textContent = "Choose a date";
+        dateError.classList.add('visible');
+        valid = false;
+      } else {
+        const selectedDate = new Date(dateInput.value);
+        const today = new Date();
+        today.setHours(0,0,0,0); // Normalize today's date for accurate comparison
+        if (isNaN(selectedDate.getTime())) {
+          dateError.textContent = "Invalid date format";
+          dateError.classList.add('visible');
+          valid = false;
+        } else if (selectedDate > today) {
+          dateError.textContent = "Date cannot be in the future";
+          dateError.classList.add('visible');
+          valid = false;
+        } else {
+          dateError.textContent = "";
+          dateError.classList.remove('visible');
+        }
+      }
+
+      return valid;
+    }
+
+    function updateDashboard() {
+      const selectedCurrency = currencySelector.value;
+      // Filter donations matching current currency
+      const filteredDonations = donations.filter(d => d.currency === selectedCurrency);
+
+      // Update total amount and count
+      const total = filteredDonations.reduce((acc, d) => acc + d.amount, 0);
+      totalDonatedEl.textContent = toCurrency(total, selectedCurrency);
+      donationCountEl.textContent = filteredDonations.length;
+
+      // Update goal progress
+      const donationGoal = donationGoals[selectedCurrency] || 1000;
+      goalLabel.textContent = `Donation Goal: ${toCurrency(donationGoal, selectedCurrency)}`;
+      goalContainer.hidden = false;
+
+      let progressPercent = Math.min(100, (total / donationGoal) * 100);
+      goalProgressBar.style.width = progressPercent + '%';
+      goalProgressBar.setAttribute('aria-valuenow', progressPercent.toFixed(0));
+      goalText.textContent = `${progressPercent.toFixed(1)}% achieved`;
+
+      // Update donation list
+      donationList.innerHTML = '';
+      // Sort donations by date descending
+      filteredDonations.sort((a,b) => b.date - a.date);
+      for (const donation of filteredDonations) {
+        const item = document.createElement('div');
+        item.className = 'donation-item';
+        item.setAttribute('role', 'listitem');
+        // Format the date for display: e.g. Apr 10, 2024
+        const dateStr = donation.date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        item.innerHTML = `
+          <span class="org" title="Organization">${donation.organization}</span>
+          <span class="amount" title="Amount donated">${toCurrency(donation.amount, donation.currency)}</span>
+          <span class="date" title="Donation date">${dateStr}</span>
+        `;
+        donationList.appendChild(item);
+      }
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      if (!validateInputs()) {
+        return;
+      }
+      const newDonation = {
+        currency: currencySelector.value,
+        organization: orgInput.value.trim(),
+        amount: parseFloat(amountInput.value),
+        date: new Date(dateInput.value)
+      };
+      donations.push(newDonation);
+
+      // Reset inputs
+      orgInput.value = '';
+      amountInput.value = '';
+      // Reset date input to today for convenience
+      const todayISO = new Date().toISOString().split('T')[0];
+      dateInput.value = todayISO;
+
+      // Focus organization input for quick next entry
+      orgInput.focus();
+
+      updateDashboard();
+    });
+
+    // Update dashboard when currency changes
+    currencySelector.addEventListener('change', () => {
+      updateDashboard();
+      // Clear form inputs and errors when currency is switched
+      orgInput.value = '';
+      amountInput.value = '';
+      organizationError.textContent = "";
+      organizationError.classList.remove('visible');
+      amountError.textContent = "";
+      amountError.classList.remove('visible');
+      dateError.textContent = "";
+      dateError.classList.remove('visible');
+      // Reset date input to today
+      const todayISO = new Date().toISOString().split('T')[0];
+      dateInput.value = todayISO;
+      orgInput.focus();
+    });
+
+    // Pre-fill date with today for convenience
+    const todayISO = new Date().toISOString().split('T')[0];
+    dateInput.value = todayISO;
+
+    // Initialize dashboard empty
+    updateDashboard();
+  })();
+</script>
+</body>
+</html>
+
